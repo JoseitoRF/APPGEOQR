@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block styles %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: #FFFDF5;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .login-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #212121;
+    }
+    
+    .login-icon {
+        font-size: 3rem;
+        color: #FFD700;
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .btn-login {
+        background-color: #FFD700;
+        border-color: #FFD700;
+        color: #212121;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 12px;
+    }
+    
+    .btn-login:hover {
+        background-color: #FFDB58;
+        border-color: #FFDB58;
+        color: #212121;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .login-footer a {
+        color: #FFB84C;
+        text-decoration: none;
+    }
+    
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .login-links {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="login-container">
+                <div class="text-center">
+                    <i class="fas fa-paw login-icon"></i>
+                    <h2 class="login-title">Bienvenido a GeoPet</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background-color: #FFD700; color: #212121;"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background-color: #FFD700; color: #212121;"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-login">Iniciar Sesión</button>
+                    </div>
+                </form>
+                
+                <div class="login-links">
+                    <a href="{{ url_for('resend_verification') }}">¿No has recibido el correo de verificación?</a>
+                </div>
+                
+                <div class="login-footer">
+                    <p>¿No tienes una cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

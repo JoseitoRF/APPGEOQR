@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Mascota{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">Editar Mascota</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group mb-3">
+                            <label for="nombre" class="form-label">Nombre de la Mascota*</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-paw"></i></span>
+                                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ mascota.Nombre }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="especie" class="form-label">Especie</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-dog"></i></span>
+                                <select class="form-select" id="especie" name="especie">
+                                    <option value="Perro" {% if mascota.Especie == 'Perro' %}selected{% endif %}>Perro</option>
+                                    <option value="Gato" {% if mascota.Especie == 'Gato' %}selected{% endif %}>Gato</option>
+                                    <option value="Ave" {% if mascota.Especie == 'Ave' %}selected{% endif %}>Ave</option>
+                                    <option value="Reptil" {% if mascota.Especie == 'Reptil' %}selected{% endif %}>Reptil</option>
+                                    <option value="Otro" {% if mascota.Especie == 'Otro' or not mascota.Especie %}selected{% endif %}>Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="raza" class="form-label">Raza</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                                <input type="text" class="form-control" id="raza" name="raza" value="{{ mascota.Raza or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="edad" class="form-label">Edad (años)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
+                                <input type="number" class="form-control" id="edad" name="edad" min="0" max="30" value="{{ mascota.Edad or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                            <a href="{{ url_for('listar_mascotas') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

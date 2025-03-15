@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel Principal{% endblock %}
+
+{% block styles %}
+<style>
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .dashboard-card {
+        transition: transform 0.3s;
+        height: 100%;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-10px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="card-title">{{ saludo }}, {{ user.Nombre }}</h1>
+                <p class="lead">¿Qué quieres hacer hoy?</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <a href="{{ url_for('scan_qr') }}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm dashboard-card">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-qrcode text-warning feature-icon"></i>
+                    <h3>Escanear código QR</h3>
+                    <p>Escanea un código QR con tu cámara o cargando una imagen</p>
+                    <button class="btn btn-warning mt-3">
+                        <i class="fas fa-camera me-2"></i> Escanear
+                    </button>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4 mb-4">
+        <a href="{{ url_for('generate_qr') }}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm dashboard-card">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-plus-circle text-success feature-icon"></i>
+                    <h3>Generar código QR</h3>
+                    <p>Crea un código QR con tu ubicación actual o personalizada</p>
+                    <button class="btn btn-success mt-3">
+                        <i class="fas fa-qrcode me-2"></i> Generar
+                    </button>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4 mb-4">
+        <a href="{{ url_for('map_view') }}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm dashboard-card">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-map-marked-alt text-warning feature-icon"></i>
+                    <h3>Ver mapa</h3>
+                    <p>Visualiza ubicaciones en un mapa interactivo</p>
+                    <button class="btn btn-warning mt-3">
+                        <i class="fas fa-map-marker-alt me-2"></i> Ver mapa
+                    </button>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 mb-4">
+        <a href="{{ url_for('listar_mascotas') }}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm dashboard-card">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-paw text-warning feature-icon"></i>
+                    <h3>Mis Mascotas</h3>
+                    <p>Gestiona el registro de tus mascotas</p>
+                    <button class="btn btn-warning mt-3">
+                        <i class="fas fa-paw me-2"></i> Ver Mascotas
+                    </button>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Últimas ubicaciones guardadas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Latitud</th>
+                                <th>Longitud</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ubicacion in user.ubicaciones[-5:]|reverse %}
+                            <tr>
+                                <td>{{ ubicacion.Fecha_Registro.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ ubicacion.Latitud }}</td>
+                                <td>{{ ubicacion.Longitud }}</td>
+                                <td>
+                                    <a href="{{ url_for('map_view', lat=ubicacion.Latitud, lng=ubicacion.Longitud) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No hay ubicaciones guardadas</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Información de la cuenta</h5>
+            </div>
+            <div class="card-body">
+                <div class="profile-info">
+                    <h3>{{ user.Nombre }} {{ user.Apellido }}</h3>
+                    <p><i class="fas fa-envelope"></i> {{ user.Email }}</p>
+                    {% if user.Telefono %}
+                    <p><i class="fas fa-phone"></i> {{ user.Telefono }}</p>
+                    {% endif %}
+                    <p><i class="fas fa-venus-mars"></i> 
+                        {% if user.Genero_ID == 1 %}
+                            Masculino
+                        {% elif user.Genero_ID == 2 %}
+                            Femenino
+                        {% else %}
+                            Otro
+                        {% endif %}
+                    </p>
+                    <p><i class="fas fa-calendar-alt"></i> Miembro desde {{ user.Fecha_Registro.strftime('%d/%m/%Y') }}</p>
+                </div>
+                <p><strong>Última conexión:</strong> {{ user.Ultima_Conexion.strftime('%d/%m/%Y %H:%M') if user.Ultima_Conexion else 'N/A' }}</p>
+                <p><strong>Conexiones totales:</strong> {{ user.Contador_Conexiones }}</p>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

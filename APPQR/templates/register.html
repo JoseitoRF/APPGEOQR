@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro{% endblock %}
+
+{% block styles %}
+<style>
+    .register-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+    
+    .register-title {
+        color: #ffc107;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+    
+    .btn-register {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+        transition: all 0.3s;
+    }
+    
+    .btn-register:hover {
+        background-color: #e0a800;
+        border-color: #e0a800;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .input-group-text {
+        width: 45px;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+    
+    .footer-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    @media (max-width: 576px) {
+        .register-container {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="register-container">
+                <div class="text-center">
+                    <i class="fas fa-user-plus register-icon"></i>
+                    <h2 class="register-title">Crea tu cuenta en GeoPet</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="form-section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">Nombre*</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="apellido" class="form-label">Apellido*</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user-tag fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Tu apellido" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="email" class="form-label">Email*</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope fa-fw fa-lg"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="telefono" class="form-label">Teléfono*</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone fa-fw fa-lg"></i></span>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required placeholder="Ej: +34 612 345 678">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <label for="password" class="form-label">Contraseña*</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock fa-fw fa-lg"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Tu contraseña" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <label for="confirmar_contrasena" class="form-label">Confirmar Contraseña*</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock fa-fw fa-lg"></i></span>
+                            <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" placeholder="Confirma tu contraseña" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="genero_id" class="form-label">Género</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-venus-mars fa-fw fa-lg"></i></span>
+                                    <select class="form-select" id="genero_id" name="genero_id">
+                                        <option value="">Selecciona una opción</option>
+                                        {% for genero in generos %}
+                                        <option value="{{ genero.ID }}">{{ genero.Descripcion }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-register">Registrarme</button>
+                    </div>
+                </form>
+                
+                <div class="register-footer">
+                    <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia sesión aquí</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación para el campo de teléfono
+        const telefonoInput = document.getElementById('telefono');
+        const telefonoFeedback = document.createElement('div');
+        telefonoFeedback.className = 'invalid-feedback';
+        telefonoFeedback.textContent = 'Por favor ingresa un número de teléfono válido';
+        telefonoInput.parentNode.appendChild(telefonoFeedback);
+        
+        telefonoInput.addEventListener('input', function() {
+            const regex = /(\+?[0-9]{1,3})?[-. ]?\(?[0-9]{3}\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}/;
+            const isValid = regex.test(this.value);
+            
+            if (isValid) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        // Formatear el número de teléfono mientras el usuario escribe
+        telefonoInput.addEventListener('blur', function() {
+            if (this.value) {
+                // Eliminar todos los caracteres no numéricos excepto el signo +
+                let cleaned = this.value.replace(/[^\d+]/g, '');
+                
+                // Formato básico: si no tiene código de país, asumir formato local
+                if (!cleaned.startsWith('+')) {
+                    if (cleaned.length === 10) {
+                        // Formato XXX-XXX-XXXX para números de 10 dígitos
+                        cleaned = cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    }
+                } else {
+                    // Si tiene código de país, mantenerlo en el formato +X-XXX-XXX-XXXX
+                    const countryCode = cleaned.substring(0, cleaned.length - 10);
+                    const number = cleaned.substring(cleaned.length - 10);
+                    if (number.length === 10) {
+                        cleaned = countryCode + '-' + number.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    }
+                }
+                
+                this.value = cleaned;
+            }
+        });
+    });
+</script>
+{% endblock %} 

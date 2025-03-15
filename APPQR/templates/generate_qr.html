@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Generar Código QR - GeoPet{% endblock %}
+
+{% block styles %}
+<style>
+    .qr-preview {
+        max-width: 250px;
+        margin: 0 auto;
+        padding: 10px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .qr-preview img {
+        width: 100%;
+    }
+    .location-display {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-qrcode me-2"></i>Generar Código QR</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Flash messages display directly here instead of including partial -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        <div class="flash-messages-container">
+                          {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endwith %}
+                    
+                    <p class="lead mb-4">
+                        Genera un código QR que incluirá tu información de contacto y ubicación actual. 
+                        Este código puede ser colocado en el collar de tu mascota para que quien lo encuentre pueda contactarte.
+                    </p>
+                    
+                    <form id="qrForm" method="POST" action="{{ url_for('generate_qr') }}">
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                        
+                        <div class="mb-4">
+                            <label for="mascota_id" class="form-label">Selecciona una mascota (opcional):</label>
+                            <select class="form-select" id="mascota_id" name="mascota_id">
+                                <option value="0">-- No seleccionar mascota --</option>
+                                {% for mascota in mascotas %}
+                                <option value="{{ mascota.ID }}">{{ mascota.Nombre }} ({{ mascota.Especie }})</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">El nombre de la mascota seleccionada se incluirá en el código QR</small>
+                        </div>
+                        
+                        <div class="location-section mb-4">
+                            <h4 class="mb-3">Tu ubicación actual</h4>
+                            <div id="map" style="height: 300px; width: 100%; border-radius: 8px;"></div>
+                            <div id="locationStatus" class="mt-2 alert alert-info">
+                                Intentando obtener ubicación GPS...
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" id="generateBtn" class="btn btn-primary btn-lg" disabled>
+                                <i class="fas fa-qrcode me-2"></i>Generar QR
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="fas fa-arrow-left me-2"></i>Volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center text-muted">
+                    <small>El código QR contendrá tu nombre, número de teléfono, correo electrónico, ubicación y el nombre de la mascota seleccionada</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the current page for the main.js script
+        document.body.dataset.page = 'generate_qr';
+        
+        // Initialize location
+        obtenerUbicacion();
+    });
+
+    // Función para obtener la ubicación
+    function obtenerUbicacion() {
+        var estadoUbicacion = document.getElementById('locationStatus');
+        estadoUbicacion.innerHTML = 'Intentando obtener ubicación GPS...';
+        estadoUbicacion.className = 'alert alert-info';
+        
+        document.getElementById('generateBtn').disabled = true;
+        
+        // Verificamos si el navegador soporta geolocalización
+        if (navigator.geolocation) {
+            var timeoutVal = 10 * 1000; // 10 segundos
+            
+            navigator.geolocation.getCurrentPosition(
+                // Función de éxito
+                function(position) {
+                    // Obtenemos las coordenadas
+                    var latitud = position.coords.latitude;
+                    var longitud = position.coords.longitude;
+                    
+                    // Asignamos los valores a los campos ocultos
+                    document.getElementById('latitude').value = latitud;
+                    document.getElementById('longitude').value = longitud;
+                    
+                    // Actualizamos el estado
+                    estadoUbicacion.innerHTML = 
+                        'Ubicación obtenida: ' + latitud.toFixed(6) + ', ' + longitud.toFixed(6);
+                    estadoUbicacion.className = 'alert alert-success';
+                    
+                    // Habilitamos el botón de envío
+                    document.getElementById('generateBtn').disabled = false;
+                },
+                // Función de error
+                function(error) {
+                    var mensaje = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            mensaje = 'Usuario denegó la solicitud de geolocalización.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            mensaje = 'La información de ubicación no está disponible.';
+                            break;
+                        case error.TIMEOUT:
+                            mensaje = 'La solicitud para obtener la ubicación del usuario expiró.';
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            mensaje = 'Ocurrió un error desconocido.';
+                            break;
+                    }
+                    
+                    estadoUbicacion.innerHTML = 'Error: ' + mensaje + ' Puedes reintentar o ingresar manualmente.';
+                    estadoUbicacion.className = 'alert alert-warning';
+                    
+                    // Mostramos botones alternativos
+                    document.getElementById('generateBtn').disabled = false;
+                },
+                // Opciones
+                {
+                    enableHighAccuracy: true,
+                    timeout: timeoutVal,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            // El navegador no soporta geolocalización
+            estadoUbicacion.innerHTML = 'Tu navegador no soporta geolocalización. Ingresa la ubicación manualmente.';
+            estadoUbicacion.className = 'alert alert-warning';
+            document.getElementById('generateBtn').disabled = false;
+        }
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Reenviar Verificación{% endblock %}
+
+{% block styles %}
+<style>
+    .verification-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: #FFFDF5;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .verification-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #212121;
+    }
+    
+    .verification-icon {
+        font-size: 3rem;
+        color: #FFD700;
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .btn-verification {
+        background-color: #FFD700;
+        border-color: #FFD700;
+        color: #212121;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 12px;
+    }
+    
+    .btn-verification:hover {
+        background-color: #FFDB58;
+        border-color: #FFDB58;
+        color: #212121;
+    }
+    
+    .verification-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .verification-footer a {
+        color: #FFB84C;
+        text-decoration: none;
+    }
+    
+    .verification-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="verification-container">
+                <div class="text-center">
+                    <i class="fas fa-envelope verification-icon"></i>
+                    <h2 class="verification-title">Verificación de Correo Electrónico</h2>
+                </div>
+                
+                <div class="alert alert-info mb-4">
+                    <p>Si no has recibido el correo de verificación o el enlace ha expirado, puedes solicitar uno nuevo ingresando tu correo electrónico.</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('resend_verification') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background-color: #FFD700; color: #212121;"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-verification">Enviar Enlace de Verificación</button>
+                    </div>
+                </form>
+                
+                <div class="verification-footer">
+                    <p>¿Ya verificaste tu cuenta? <a href="{{ url_for('login') }}">Iniciar sesión</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

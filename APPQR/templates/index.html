@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-lg text-center py-5">
+            <div class="card-body">
+                <div class="mb-4">
+                    <i class="fas fa-paw text-warning fa-5x"></i>
+                </div>
+                <h1 class="display-4 fw-bold text-warning mb-4">GeoPet</h1>
+                <p class="lead mb-4">La aplicación que te permite localizar a tus mascotas mediante códigos QR</p>
+                <hr class="my-4 bg-warning">
+                <p class="mb-5">Genera códigos QR con tu ubicación, recibe notificaciones cuando alguien los escanea, y visualiza ubicaciones en el mapa.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('login') }}" class="btn btn-warning btn-lg px-5 me-md-2">Iniciar sesión</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg px-5">Registrarse</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm feature-card h-100">
+            <div class="card-body">
+                <i class="fas fa-qrcode text-warning"></i>
+                <h3 class="my-3">Escaneo de QR</h3>
+                <p>Escanea códigos QR con la cámara de tu dispositivo y visualiza la ubicación en el mapa.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm feature-card h-100">
+            <div class="card-body">
+                <i class="fas fa-map-marked-alt text-warning"></i>
+                <h3 class="my-3">Mapas en tiempo real</h3>
+                <p>Visualiza ubicaciones en tiempo real con OpenStreetMap y mide distancias.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm feature-card h-100">
+            <div class="card-body">
+                <i class="fas fa-envelope-open-text text-warning"></i>
+                <h3 class="my-3">Notificaciones por correo</h3>
+                <p>Recibe notificaciones cuando alguien escanee tus códigos QR.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

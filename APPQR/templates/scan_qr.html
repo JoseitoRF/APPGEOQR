@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+
+{% block title %}Escanear Código QR{% endblock %}
+
+{% block styles %}
+<style>
+    .camera-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        background-color: #000;
+        height: 350px;
+        width: 100%;
+    }
+    
+    #reader {
+        width: 100% !important;
+        height: 100% !important;
+        background: #000;
+        border-radius: 10px;
+    }
+    
+    #reader video {
+        width: 100% !important;
+        height: auto;
+    }
+    
+    #reader__scan_region {
+        background: transparent !important;
+    }
+    
+    #reader__scan_region img {
+        display: none;
+    }
+    
+    #reader__dashboard {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    #reader__dashboard_section_csr button {
+        background-color: #FFD700 !important;
+        color: #212121 !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 8px 15px !important;
+        font-weight: 600 !important;
+    }
+    
+    #reader__dashboard_section_fsr button {
+        background-color: #FFD700 !important;
+        color: #212121 !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 8px 15px !important;
+        font-weight: 600 !important;
+    }
+    
+    .camera-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid transparent;
+        box-sizing: border-box;
+        background-image: 
+            linear-gradient(to right, #FFD700 10px, transparent 10px) 0 0,
+            linear-gradient(to right, transparent 10px, #FFD700 10px) 100% 0,
+            linear-gradient(to left, #FFD700 10px, transparent 10px) 0 100%,
+            linear-gradient(to left, transparent 10px, #FFD700 10px) 100% 100%,
+            linear-gradient(to bottom, #FFD700 10px, transparent 10px) 0 0,
+            linear-gradient(to bottom, transparent 10px, #FFD700 10px) 100% 0,
+            linear-gradient(to top, #FFD700 10px, transparent 10px) 0 100%,
+            linear-gradient(to top, transparent 10px, #FFD700 10px) 100% 100%;
+        background-repeat: no-repeat;
+        background-size: 30px 30px;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    .scanning-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, transparent, #FFD700, transparent);
+        animation: scanning 2s ease-in-out infinite;
+        display: none;
+        z-index: 9;
+    }
+    
+    .scan-label {
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+        font-size: 14px;
+        border-radius: 20px;
+        margin: 0 auto;
+        width: 180px;
+        z-index: 9;
+    }
+    
+    .qr-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .qr-btn {
+        background-color: #FFD700;
+        color: #212121;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .qr-btn i {
+        margin-right: 8px;
+    }
+    
+    .qr-btn:hover {
+        background-color: #FFDB58;
+    }
+    
+    .qr-btn:disabled {
+        background-color: #e0e0e0;
+        color: #757575;
+        cursor: not-allowed;
+    }
+    
+    .file-upload-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 15px;
+    }
+    
+    .hidden-file-input {
+        display: none;
+    }
+    
+    .or-divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+    }
+    
+    .or-divider::before, .or-divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .or-divider-text {
+        padding: 0 10px;
+        color: #6c757d;
+    }
+    
+    @keyframes scanning {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(350px); }
+        100% { transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-qrcode me-2"></i>Escanear Código QR</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p><i class="fas fa-info-circle me-2"></i>Escanea un código QR de GeoPet con tu cámara o sube una imagen con el código.</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('scan_qr') }}" id="scan-form">
+                    <!-- Hidden fields for QR data and location -->
+                    <input type="hidden" id="qr-data" name="qr_data">
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    
+                    <!-- QR Reader Controls -->
+                    <div class="qr-controls">
+                        <button type="button" id="btn-start-camera" class="qr-btn">
+                            <i class="fas fa-camera"></i> Leer
+                        </button>
+                        <button type="button" id="btn-stop-camera" class="qr-btn" disabled>
+                            <i class="fas fa-stop"></i> Detener
+                        </button>
+                    </div>
+                    
+                    <!-- Camera view -->
+                    <div class="camera-container">
+                        <div id="reader"></div>
+                        <div class="camera-overlay"></div>
+                        <div class="scanning-indicator" id="scanning-indicator"></div>
+                        <div class="scan-label" id="scan-label">Haga clic en "Leer" para activar la cámara</div>
+                    </div>
+
+                    <div id="camera-error-message" class="alert alert-danger" style="display: none;">
+                        <p><i class="fas fa-exclamation-triangle me-2"></i>No se pudo acceder a la cámara. Por favor verifica los permisos o utiliza la opción de cargar imagen.</p>
+                    </div>
+                    
+                    <!-- File upload option -->
+                    <div class="or-divider">
+                        <span class="or-divider-text">O</span>
+                    </div>
+                    
+                    <div class="mb-4 file-upload-container">
+                        <label for="qr-file" class="form-label">Sube una imagen con código QR</label>
+                        <input class="hidden-file-input" type="file" id="qr-file" accept="image/*">
+                        <button type="button" id="upload-button" class="qr-btn">
+                            <i class="fas fa-upload"></i> Cargar
+                        </button>
+                        <div class="form-text mt-2">Sube una imagen clara del código QR</div>
+                    </div>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-muted">Al escanear un código QR de GeoPet, se enviará una notificación al creador del código con tu ubicación actual.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the current page for the main.js script
+        document.body.dataset.page = 'scan_qr';
+        
+        // Get current location (handled by main.js)
+        fillLocationInputs();
+        
+        // Elementos DOM
+        const scanLabel = document.getElementById('scan-label');
+        const qrResultInput = document.getElementById('qr-data');
+        const scanningIndicator = document.getElementById('scanning-indicator');
+        const uploadButton = document.getElementById('upload-button');
+        const fileInput = document.getElementById('qr-file');
+        const cameraErrorMessage = document.getElementById('camera-error-message');
+        const btnStartCamera = document.getElementById('btn-start-camera');
+        const btnStopCamera = document.getElementById('btn-stop-camera');
+        
+        // Variables de estado
+        let html5QrCode = null;
+        let isScanning = false;
+        
+        // Configuración del escáner
+        const qrConfig = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            rememberLastUsedCamera: true,
+            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+        };
+        
+        // Callback para QR detectado
+        function onScanSuccess(decodedText, decodedResult) {
+            try {
+                console.log("QR detectado:", decodedText);
+                qrResultInput.value = decodedText;
+                scanLabel.textContent = "¡Código QR detectado!";
+                
+                // Detener el escaneo
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().then(() => {
+                        console.log("Escáner detenido después de detección exitosa");
+                        btnStartCamera.disabled = false;
+                        btnStopCamera.disabled = true;
+                        isScanning = false;
+                        scanningIndicator.style.display = 'none';
+                    });
+                }
+                
+                // Obtener ubicación actual
+                getCurrentLocation((lat, lng) => {
+                    document.getElementById('latitude').value = lat.toFixed(7);
+                    document.getElementById('longitude').value = lng.toFixed(7);
+                    
+                    // Enviar formulario con pequeño retraso
+                    setTimeout(() => {
+                        document.getElementById('scan-form').submit();
+                    }, 800);
+                });
+            } catch (error) {
+                console.error("Error procesando QR:", error);
+                scanLabel.textContent = "Error procesando QR";
+            }
+        }
+        
+        // Iniciar la cámara
+        function startCamera() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                return;
+            }
+            
+            scanningIndicator.style.display = 'block';
+            scanLabel.textContent = 'Iniciando cámara...';
+            cameraErrorMessage.style.display = 'none';
+            
+            try {
+                html5QrCode = new Html5Qrcode("reader");
+                
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    qrConfig,
+                    onScanSuccess,
+                    (errorMessage) => {
+                        // Este callback maneja errores de escaneo durante la operación normal
+                        // No necesitamos mostrar estos errores al usuario
+                        console.log("Error de escaneo:", errorMessage);
+                    }
+                ).then(() => {
+                    console.log("Cámara iniciada correctamente");
+                    scanLabel.textContent = 'Escaneando...';
+                    isScanning = true;
+                    btnStartCamera.disabled = true;
+                    btnStopCamera.disabled = false;
+                }).catch((err) => {
+                    console.error("Error al iniciar la cámara:", err);
+                    scanLabel.textContent = 'Error al activar cámara';
+                    cameraErrorMessage.style.display = 'block';
+                    btnStartCamera.disabled = false;
+                    btnStopCamera.disabled = true;
+                });
+            } catch (err) {
+                console.error("Excepción al iniciar cámara:", err);
+                scanLabel.textContent = 'Error al activar cámara';
+                cameraErrorMessage.style.display = 'block';
+                btnStartCamera.disabled = false;
+                btnStopCamera.disabled = true;
+            }
+        }
+        
+        // Detener la cámara
+        function stopCamera() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    console.log("Escáner detenido manualmente");
+                    scanningIndicator.style.display = 'none';
+                    scanLabel.textContent = 'Cámara detenida';
+                    isScanning = false;
+                    btnStartCamera.disabled = false;
+                    btnStopCamera.disabled = true;
+                }).catch((err) => {
+                    console.error("Error al detener la cámara:", err);
+                });
+            }
+        }
+        
+        // Event listeners para botones de cámara
+        btnStartCamera.addEventListener('click', startCamera);
+        btnStopCamera.addEventListener('click', stopCamera);
+        
+        // Manejar botón de carga de archivo
+        uploadButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Procesar archivo seleccionado
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                scanLabel.textContent = 'Analizando imagen...';
+                
+                // Si la cámara está activa, detenerla
+                if (html5QrCode && html5QrCode.isScanning) {
+                    stopCamera();
+                }
+                
+                // Crear una nueva instancia para escanear el archivo
+                const fileQrCode = new Html5Qrcode("reader");
+                
+                fileQrCode.scanFile(file, true)
+                    .then(decodedText => {
+                        console.log("QR en imagen detectado:", decodedText);
+                        qrResultInput.value = decodedText;
+                        scanLabel.textContent = "¡Código QR detectado!";
+                        
+                        // Obtener ubicación
+                        getCurrentLocation((lat, lng) => {
+                            document.getElementById('latitude').value = lat.toFixed(7);
+                            document.getElementById('longitude').value = lng.toFixed(7);
+                            
+                            // Enviar formulario
+                            setTimeout(() => {
+                                document.getElementById('scan-form').submit();
+                            }, 800);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error al escanear archivo:", err);
+                        scanLabel.textContent = "No se encontró código QR";
+                        alert('No se pudo detectar un código QR en la imagen seleccionada. Intenta con otra imagen.');
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %} 

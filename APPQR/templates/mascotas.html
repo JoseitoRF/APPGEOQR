@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Mascotas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mis Mascotas</h1>
+        <a href="{{ url_for('agregar_mascota') }}" class="btn btn-warning">
+            <i class="fas fa-plus-circle me-2"></i>Agregar Mascota
+        </a>
+    </div>
+    
+    {% if mascotas %}
+    <div class="row">
+        {% for mascota in mascotas %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">{{ mascota.Nombre }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex mb-2">
+                        <div class="me-3 text-center" style="width: 40px;">
+                            {% if mascota.Especie == 'Perro' %}
+                                <i class="fas fa-dog text-warning fa-2x"></i>
+                            {% elif mascota.Especie == 'Gato' %}
+                                <i class="fas fa-cat text-warning fa-2x"></i>
+                            {% elif mascota.Especie == 'Ave' %}
+                                <i class="fas fa-crow text-warning fa-2x"></i>
+                            {% elif mascota.Especie == 'Reptil' %}
+                                <i class="fas fa-dragon text-warning fa-2x"></i>
+                            {% else %}
+                                <i class="fas fa-paw text-warning fa-2x"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="card-text mb-1"><strong>Especie:</strong> {{ mascota.Especie or 'No especificada' }}</p>
+                            <p class="card-text mb-1"><strong>Raza:</strong> {{ mascota.Raza or 'No especificada' }}</p>
+                            <p class="card-text mb-0"><strong>Edad:</strong> 
+                                {% if mascota.Edad %}
+                                    {{ mascota.Edad }} {% if mascota.Edad == 1 %}año{% else %}años{% endif %}
+                                {% else %}
+                                    No especificada
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between">
+                    <a href="{{ url_for('editar_mascota', mascota_id=mascota.ID) }}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </a>
+                    <a href="{{ url_for('eliminar_mascota', mascota_id=mascota.ID) }}" class="btn btn-sm btn-outline-danger" 
+                       onclick="return confirm('¿Estás seguro de eliminar a {{ mascota.Nombre }}?')">
+                        <i class="fas fa-trash-alt me-1"></i>Eliminar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+                <h4 class="alert-heading">No tienes mascotas registradas</h4>
+                <p class="mb-0">Añade tu primera mascota haciendo clic en el botón "Agregar Mascota".</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
